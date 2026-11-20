@@ -58,7 +58,6 @@ ln -s /path/to/dsh-serial \
 | **左栏 · 设置** | 线路参数、连接 / 测试连接 / 断开、快捷按键、终端外观、收发计数 |
 | **右栏 · 终端** | 标签栏（显示当前端口与连接状态）+ xterm 画面 + 底部快捷发送行 |
 
-顶栏会标注当前实际使用的字体。
 
 ---
 
@@ -131,64 +130,6 @@ ln -s /path/to/dsh-serial \
 
 ---
 
-## 字体
-
-字体分「主字体 + 字形回退」两层，**UI 与终端共用同一份字体栈**（运行时写入 `--dsr-font`，子元素全部 `font-family: inherit`）。
-
-### 查找顺序
-
-| 优先级 | 目录 | 说明 |
-| --- | --- | --- |
-| 1 | `<DSH_HOME>/dsh-serial/fonts/`（默认 `/var/lib/deepseek-harness/dsh-serial/fonts/`） | 用户投放 + 下载缓存，**优先** |
-| 2 | `<插件目录>/lib/assets/fonts/` | **随包自带**，解压即可用 |
-
-安装后无需任何配置、也不依赖联网；若之后把新字体放进用户目录，会覆盖包内自带的。
-
-### 选取规则
-
-| 角色 | 规则 | 当前 |
-| --- | --- | --- |
-| 主字体 | 文件名含 `monaco` 的优先，否则取第一个字体文件 | `Monaco.ttf` |
-| 字形回退 | 与主字体不同的另一个字体文件 | `SourceCodePro-Regular.ttf` |
-
-### 为什么必须两层
-
-Monaco 只有 358 个字形：
-
-```
-ASCII      0x20-0x7E   95/95    ✔ 完整
-Latin-1    0xA0-0xFF   96/96    ✔ 完整
-制表符      U+2500-257F  0/128  ✘ 终端画表格 / 进度条会掉字
-块元素      U+2580-259F  0/32   ✘
-箭头        U+2190-21FF  0/112  ✘
-CJK         U+4E00-9FFF  0/20992 ✘ 中文输出会掉字
-```
-
-所以 ASCII 走 Monaco，缺失字形逐字落到 Source Code Pro（制表符 128/128、块元素 32/32），
-中文再落到系统中文字体。
-
-### 浏览器侧
-
-注册两个 `@font-face`：`DshSerialMono`（`/api/dsh-serial/font`）与 `DshSerialMonoFallback`（`/api/dsh-serial/font/fallback`），
-字体栈为：
-
-```text
-"DshSerialMono", "DshSerialMonoFallback", "Monaco",
-var(--ds-font-family-code, ui-monospace), Menlo, Consolas, monospace,
-"PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", "Source Han Sans SC", sans-serif
-```
-
-字体必须在 `Terminal.open()` **之前**就绪：xterm 靠实测字符宽度计算网格，字体晚到会算错列宽。
-所以前端先 `await` 两个 `document.fonts.load()` 再建终端。
-
-### 换字体
-
-- 把字体文件放进字体目录即可，文件名含 `monaco` 的会被当作主字体。
-- 主字体缺失时，Host 按 `Source Code Pro → Fira Mono → JetBrains Mono`（均为 SIL OFL）自动下载。
-- `DSH_SERIAL_FONT_URL=<直链>` 可指定自定义下载地址。
-
----
-
 ## 架构
 
 ```
@@ -227,9 +168,6 @@ var(--ds-font-family-code, ui-monospace), Menlo, Consolas, monospace,
 | `POST` | `/write` | 写字节：`{ session, data }`，`data` 为 base64，单次上限 64 KB |
 | `POST` | `/close` | 关闭会话：`{ session }` |
 | `GET` | `/stream?session=&from=` | SSE 下行，`data` 帧带累计字节序号，便于去重续传 |
-| `POST` | `/font` | 确保主字体与回退字体就位（缺则下载），返回 `{ font, fallback }` |
-| `GET` | `/font` | 下发主字体文件 |
-| `GET` | `/font/fallback` | 下发行形回退字体 |
 | `GET` | `/assets/{xterm.js,xterm.css,addon-fit.js,XTERM-LICENSE}` | 静态资源（逐文件 exact 路由，非前缀匹配） |
 
 ---
@@ -273,10 +211,9 @@ plugin_manager set_plugin  target=include:dsh-serial  enabled=true
 | 文件 | 作用 |
 | --- | --- |
 | `lib/engine.js` | 串口引擎：端口枚举、`stty` 参数、非阻塞 fd 读写、环形回放缓冲、会话管理 |
-| `lib/index.js` | Host 半区：HTTP / SSE 路由、同源校验、静态资源与字体下发 |
+| `lib/index.js` | Host 半区：HTTP / SSE 路由、同源校验、静态资源下发 |
 | `lib/client.js` | 浏览器半区：手写 `__ModuleLoader__` 包（无需打包器），侧边栏入口 + 主面板 |
 | `lib/assets/` | 随包分发的 xterm.js / addon-fit / xterm.css |
-| `lib/assets/fonts/` | 随包携带的终端字体 |
 
 ---
 
@@ -285,4 +222,3 @@ plugin_manager set_plugin  target=include:dsh-serial  enabled=true
 本项目以 MIT 许可发布，全文见 [LICENSE](LICENSE)。
 
 - `lib/assets/` 下的 xterm.js、addon-fit 与样式表来自 xterm.js 项目，按其 MIT 许可分发，全文见 `lib/assets/XTERM-LICENSE`。
-- 终端字体随包分发于 `lib/assets/fonts/`（Monaco + Source Code Pro），各字体文件的许可独立于本项目。
