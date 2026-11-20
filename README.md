@@ -132,14 +132,28 @@ ln -s /path/to/dsh-serial \
 
 ## 架构
 
-```
-浏览器 (xterm.js)                    Host 进程 (Node)                串口设备
-  │  POST /api/dsh-serial/write             │                            │
-  ├─────────── base64 字节 ────────────────►│  writeSync(fd) ───────────►│
-  │                                         │                            │
-  │  GET /api/dsh-serial/stream (SSE)       │  轮询 readSync             │
-  │◄────────── data 帧 + seq ───────────────┤  (O_NONBLOCK, 6 ms)        │
-  │                                         │◄───────────────────────────┤
+```mermaid
+flowchart LR
+    subgraph browser["浏览器 · xterm.js"]
+        keyboard["键盘输入 / 粘贴"]
+        terminal["终端渲染"]
+    end
+
+    subgraph host["Host 进程 · Node"]
+        writer["writeSync(fd)"]
+        drain["drain 循环 · 6 ms"]
+        ring[("环形缓冲 512 KB + seq")]
+    end
+
+    subgraph device["串口设备"]
+        uart["/dev/ttyUSB* · /dev/ttyACM*"]
+    end
+
+    keyboard -- "POST /write · base64" --> writer
+    writer -- "上行字节" --> uart
+    uart -- "下行 readSync · O_NONBLOCK" --> drain
+    drain --> ring
+    ring -- "SSE /stream · data 帧 + seq" --> terminal
 ```
 
 两个技术约束决定了这个形状：
