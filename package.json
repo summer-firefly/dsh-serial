@@ -10,6 +10,14 @@
     "terminal",
     "xterm"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/summer-firefly/dsh-serial.git"
+  },
+  "homepage": "https://github.com/summer-firefly/dsh-serial#readme",
+  "bugs": {
+    "url": "https://github.com/summer-firefly/dsh-serial/issues"
+  },
   "license": "MIT",
   "type": "module",
   "main": "lib/index.js",
