@@ -1,0 +1,44 @@
+{
+  "name": "dsh-serial",
+  "version": "0.2.1",
+  "description": "DSH Web GUI 串口终端：在 DeepSeek Harness 里像 minicom / SecureCRT 一样连接本机串口设备（USB 转串口、板载 UART），交互式收发 Linux 命令。Host 半区用 stty + 非阻塞 fd 读写，浏览器半区用 xterm.js，SSE 推流、HTTP 上行。",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "serial",
+    "uart",
+    "terminal",
+    "xterm"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "engines": {
+      "dsh": ">=0.2.2-rc.2"
+    },
+    "client": {
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-slots",
+        "@deepseek-ai/dsh-client-ui-layout"
+      ],
+      "platform": "web"
+    },
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "files": [
+    "lib/**/*.js",
+    "lib/assets/*",
+    "icon.svg",
+    "README.md",
+    "cordis.patch.yml",
+    "LICENSE"
+  ]
+}

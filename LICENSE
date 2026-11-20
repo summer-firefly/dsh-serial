@@ -1,0 +1,34 @@
+MIT License
+
+Copyright (c) 2026 dsh-serial contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+-------------------------------------------------------------------------------
+第三方便携资源 / Bundled third-party assets
+
+lib/assets/xterm.js、lib/assets/xterm.css、lib/assets/addon-fit.js
+    来自 xterm.js 项目（https://github.com/xtermjs/xterm.js），MIT 授权，
+    全文见 lib/assets/XTERM-LICENSE。
+
+终端字体随包分发于 lib/assets/fonts/（Monaco.ttf + SourceCodePro-Regular.ttf）。
+
+插件在字体缺失时也会从 SIL OFL 授权的开源字体源
+（Source Code Pro / Fira Mono / JetBrains Mono）按需下载到
+<DSH_HOME>/dsh-serial/fonts/。

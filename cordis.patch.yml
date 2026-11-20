@@ -1,0 +1,6 @@
+# Bundle patch layer: 把串口插件的一行插入 profile 的 layer 栈。
+# `name` 指向本包（main 入口即 Host 半区），包的 `dsh.client` 声明让 Web 端
+# 额外加载 ./client 作为浏览器半区。
+- insert:
+    - id: dsh-serial
+      name: dsh-serial
