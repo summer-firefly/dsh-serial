@@ -15,8 +15,8 @@
 | 能力 | 说明 |
 | --- | --- |
 | 端口枚举 | 扫描 `/dev/ttyUSB*`、`/dev/ttyACM*`、`/dev/ttyS*`、`/dev/rfcomm*`，从 sysfs 读驱动名与 USB `vid:pid`，USB 设备排在最前，实时标记「占用中」 |
-| 测试连接 | 不建正式会话：临时打开端口、发一个回车、观察 1.5 s 内的回读，并用**可读字符占比**区分三种情况 —— 线路正常 / 收到乱码（波特率或校验位不对）/ 完全没有数据。测试完立刻关掉端口，不影响已连接的会话 |
-| 线路参数 | 波特率 9600–3000000（**默认 921600**）、数据位 5–8、校验 无/奇/偶、停止位 1/2、流控 无/RTS-CTS/XON-XOFF；已连接时可「应用参数」热切换 |
+| 测试连接 | 不建正式会话：临时打开端口、发一个回车、观察 1.5 s 内的回读，并用**可读字符占比**区分三种情况 —— 线路正常（`active`，可读占比 ≥ 0.85）/ 收到乱码（`garbled`，波特率或校验位不对）/ 完全没有数据（`silent`）。测试完立刻关掉端口，不影响已连接的会话 |
+| 线路参数 | 波特率 9600–3000000（**默认 921600**）、数据位 5–8（默认 8）、校验 无/奇/偶（默认无）、停止位 1/2（默认 1）、流控 无/RTS-CTS/XON-XOFF（默认无）；已连接时可「应用参数」热切换 |
 | 交互终端 | xterm.js 渲染（ANSI 颜色、光标、滚动回放），键盘输入直通串口，支持 `Ctrl-C`、Tab 补全、粘贴 |
 | 字体 | **整个插件（设置栏、按钮、终端）统一使用字体目录里的主字体**，默认即 Monaco；主字体缺失的制表符/块元素/CJK 由第二款字体（Source Code Pro）逐字回退；再退本机 Monaco 与系统中文字体。顶栏标注当前实际使用的字体 |
 | 会话保活 | 串口会话在 **Host 进程**里，切到对话再切回来、刷新页面都不会断线；重挂载时按环形缓冲（512 KB）重放，按字节序号去重，不会重复上屏 |
@@ -129,7 +129,7 @@ var(--ds-font-family-code, ui-monospace), Menlo, Consolas, monospace,
 | POST | `/api/dsh-serial/set` | 改线路参数：`{ session, ... }` |
 | POST | `/api/dsh-serial/close` | 关闭会话：`{ session }` |
 | GET | `/api/dsh-serial/stream?session=&from=` | SSE 下行（`data` 帧带累计字节序号，便于去重续传） |
-| GET | `/api/dsh-serial/assets/:file` | xterm.js / addon-fit / xterm.css |
+| GET | `/api/dsh-serial/assets/{xterm.js,xterm.css,addon-fit.js,XTERM-LICENSE}` | 静态资源，逐文件 exact 路由（非前缀匹配） |
 | GET | `/api/dsh-serial/font` | 下发主字体文件（不装则 404） |
 | GET | `/api/dsh-serial/font/fallback` | 下发行形回退字体 |
 | POST | `/api/dsh-serial/font` | 确保主字体与回退字体就位（缺则下载），返回 `{ font, fallback }` |
